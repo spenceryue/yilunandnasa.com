@@ -1,7 +1,7 @@
-/* @font-face {
-  font-family: "Avenir Medium";
-  src: url("./fonts/Avenir Medium.ttf");
-} */
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/Avenir.ttf");
+}
 
 @font-face {
   font-family: "Avenir Light";
@@ -30,9 +30,9 @@
 
 a {
   color: inherit;
-  font-family: "Cormorant Garamond Light", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 400;
   text-decoration: none;
 
   &:hover {
@@ -206,7 +206,8 @@ section {
         width: 300px;
 
         > b {
-          font-weight: 700;
+          font-family: "Avenir", sans-serif;
+          font-weight: 400;
         }
       }
     }
