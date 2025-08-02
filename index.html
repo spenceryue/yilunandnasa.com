@@ -234,8 +234,8 @@
         globalThis.addEventListener(
           "scroll",
           () => {
-            const delta = window.scrollY - scrollY;
-            scrollY = window.scrollY;
+            const delta = Math.max(0, window.scrollY) - scrollY;
+            scrollY = Math.max(0, window.scrollY);
             element.classList.toggle("hidden", delta > 0);
           },
           { passive: true }
