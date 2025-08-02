@@ -250,6 +250,8 @@
         const buttons = Array.from(dialog.querySelectorAll("a, button"));
         let currentImage;
 
+        document.startViewTransition ??= (f) => f();
+
         images.forEach((img, i) =>
           img.addEventListener("click", () => {
             if (!dialog.open) {
@@ -258,7 +260,7 @@
               }
               currentImage = img;
               img.style.viewTransitionName = "currentImage";
-              (document.startViewTransition ?? ((f) => f()))(() => {
+              document.startViewTransition(() => {
                 setInstagramLink(currentImage);
                 dialog.showModal();
                 document.activeElement?.blur();
@@ -273,7 +275,7 @@
 
         dialog.addEventListener("close", () => {
           currentImage.style.viewTransitionName = "closingImage";
-          (document.startViewTransition ?? ((f) => f()))(() => {
+          document.startViewTransition(() => {
             imagesContainer.append(...images);
             imagesContainer.style.height = null;
             document.documentElement.style.overflow = null;
