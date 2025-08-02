@@ -1,6 +1,7 @@
 <html>
   <head>
     <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="#000" name="theme-color" />
     <link href="./styles.css" rel="stylesheet" />
   </head>
 
@@ -257,7 +258,7 @@
               }
               currentImage = img;
               img.style.viewTransitionName = "currentImage";
-              document.startViewTransition(() => {
+              (document.startViewTransition ?? ((f) => f()))(() => {
                 setInstagramLink(currentImage);
                 dialog.showModal();
                 document.activeElement?.blur();
@@ -272,7 +273,7 @@
 
         dialog.addEventListener("close", () => {
           currentImage.style.viewTransitionName = "closingImage";
-          document.startViewTransition(() => {
+          (document.startViewTransition ?? ((f) => f()))(() => {
             imagesContainer.append(...images);
             imagesContainer.style.height = null;
             document.documentElement.style.overflow = null;
@@ -376,7 +377,7 @@
 
       function timer(
         // April 1, 2026 at 2:30 PM, Central Daylight Time (GMT-5)
-        weddingDate = new Date("2026-04-01:14:30.000-05:00"),
+        weddingDate = new Date("2026-04-01T14:30:00.000-05:00"),
         selector = "#timer"
       ) {
         const element = document.querySelector(selector);
@@ -384,7 +385,11 @@
           .filter((child) => child instanceof HTMLDivElement)
           .map((child) => child.children[0]);
 
-        const interval = setInterval(() => {
+        const interval = setInterval(setTimer, 1000);
+
+        setTimer();
+
+        function setTimer() {
           const time = Math.max(0, weddingDate - Date.now());
 
           if (time === 0) {
@@ -402,7 +407,7 @@
           children[2].textContent = String(minutes).padStart(2, "0");
           children[3].textContent = String(seconds).padStart(2, "0");
           children[0].style.translate = children[0].textContent.length > 2 ? "-8px" : null;
-        }, 1000);
+        }
       }
     </script>
   </body>

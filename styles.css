@@ -166,6 +166,8 @@ section {
 
     > * {
       aspect-ratio: 1 / 1;
+      display: block;
+      width: 100%;
     }
 
     > div {
@@ -301,6 +303,10 @@ section {
     scrollbar-width: none;
     transition: overlay 0.4s ease allow-discrete, display 0.4s ease allow-discrete;
     width: 100vw;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     &::backdrop {
       background-color: black;
