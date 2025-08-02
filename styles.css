@@ -1,0 +1,451 @@
+/* @font-face {
+  font-family: "Avenir Medium";
+  src: url("./fonts/Avenir Medium.ttf");
+} */
+
+@font-face {
+  font-family: "Avenir Light";
+  src: url("./fonts/Avenir Light.woff2");
+}
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("./fonts/Cormorant Garamond.woff2");
+}
+
+@font-face {
+  font-family: "Cormorant Garamond Light";
+  src: url("./fonts/Cormorant Garamond Light.woff2");
+}
+
+@font-face {
+  font-family: "Snell Roundhand";
+  font-style: italic;
+  src: url("./fonts/Snell Roundhand.woff2");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  font-family: "Cormorant Garamond Light", serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+:root {
+  --bg1: #ebeae3;
+  --bg2: #d0dcdc;
+  --bg3: #e3d7c4;
+  --bg4: #d0dcdc;
+  --bg5: #dbd0dc;
+  --bg6: #aa9064;
+  --bg7: #bcbbb6;
+  --max-width: min(100vw, 1200px);
+  --nav-height: 64px;
+  --shrinkBy: 0.5;
+  --radius1: calc(var(--shrinkBy) * 40px);
+  --radius2: calc(var(--shrinkBy) * 50px);
+  --text: #011313;
+  background-color: var(--bg1);
+  color: var(--text);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+h1 {
+  font-family: "Cormorant Garamond Light", serif;
+  font-size: calc(var(--shrinkBy) * 118px);
+  font-weight: 400;
+  margin: 0;
+}
+
+h2 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: calc(pow(var(--shrinkBy), 0.7) * 69.8672px);
+  font-weight: 400;
+  margin: 0;
+}
+
+h3 {
+  font-family: "Snell Roundhand", cursive;
+  font-size: calc(pow(var(--shrinkBy), 0.5) * 66px);
+  font-weight: 400;
+  margin: 0;
+}
+
+h4 {
+  font-family: "Snell Roundhand", cursive;
+  font-size: calc(pow(var(--shrinkBy), 0.2) * 33px);
+  font-weight: 400;
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+nav {
+  backdrop-filter: saturate(180%) blur(20px);
+  background: color-mix(in srgb, transparent, var(--bg1) 50%);
+  display: flex;
+  gap: 30px;
+  height: var(--nav-height);
+  justify-content: center;
+  left: 0;
+  margin-bottom: calc(-1 * var(--nav-height));
+  padding: 20px 40px;
+  position: sticky;
+  top: -40px;
+  transition: opacity 0.4s ease;
+  translate: 0 40px;
+  width: 100%;
+  z-index: 1;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+section {
+  max-width: var(--max-width);
+  margin-inline: auto;
+  width: var(--max-width);
+}
+
+#splash {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  height: calc(100vh - 120px);
+  margin-top: 120px;
+  text-align: center;
+
+  > div {
+    border-radius: var(--radius1);
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    overflow: clip;
+
+    > img {
+      max-width: calc((var(--max-width) - 2px) / 2);
+      max-height: 45vh;
+    }
+  }
+}
+
+#wedding {
+  border-top-left-radius: var(--radius1);
+  border-top-right-radius: var(--radius1);
+  overflow: clip;
+  position: relative;
+
+  > div {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 2px;
+    margin-bottom: 2px;
+
+    > * {
+      aspect-ratio: 1 / 1;
+    }
+
+    > div {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+
+      &:is(:nth-child(1) > div) {
+        background-color: var(--bg3);
+      }
+      &:is(:nth-child(2) > div) {
+        background-color: var(--bg4);
+      }
+      &:is(:nth-child(3) > div) {
+        background-color: var(--bg5);
+      }
+      &:is(:nth-child(4) > div) {
+        background-color: var(--bg6);
+      }
+      &:is(:nth-child(5) > div) {
+        background-color: var(--bg7);
+      }
+
+      > h2,
+      > h3 {
+        margin-bottom: 26.172px;
+      }
+
+      > p {
+        font-family: "Avenir Light", sans-serif;
+        font-size: 20px;
+        margin-block: 0;
+        margin-bottom: 28px;
+        width: 300px;
+
+        > b {
+          font-weight: 700;
+        }
+      }
+    }
+  }
+}
+
+#forest-selfie {
+  height: 70vh;
+  left: 0;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  max-width: var(--max-width);
+  display: block;
+  margin-inline: auto;
+  z-index: -1;
+}
+
+#see-you-there {
+  &::before,
+  &::after {
+    background-color: var(--bg7);
+    content: "";
+    flex-grow: 1;
+    margin-block: 2px;
+    width: 2px;
+  }
+
+  align-items: center;
+  background-color: var(--bg1);
+  display: flex;
+  flex-direction: column;
+  height: 70vh;
+  justify-content: center;
+  padding-bottom: var(--radius1);
+  margin-bottom: calc(-1 * var(--radius1));
+
+  > #timer {
+    display: flex;
+    font-family: "Avenir Light", sans-serif;
+    margin-bottom: 16px;
+    margin-top: 30px;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: center;
+      width: 69.79px;
+
+      > :first-child {
+        font-size: 40px;
+        line-height: 56px;
+      }
+
+      > :last-child {
+        font-size: 14px;
+      }
+    }
+
+    > span {
+      font-size: 33px;
+      margin-top: 4px;
+    }
+  }
+}
+
+#photos {
+  background-color: var(--bg2);
+  border-radius: var(--radius1);
+  overflow: clip;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: calc(107.195px * pow(var(--shrinkBy), 2)) calc(165px * pow(var(--shrinkBy), 2));
+
+  > p {
+    font-family: "Avenir Light", sans-serif;
+    font-size: 18px;
+    margin-block: 0;
+    margin-bottom: 28px;
+  }
+
+  > dialog {
+    background: none;
+    border: none;
+    height: 100vh;
+    margin: 0;
+    max-height: unset;
+    max-width: unset;
+    outline: none;
+    padding: 0;
+    scroll-snap-stop: always;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    transition: overlay 0.4s ease allow-discrete, display 0.4s ease allow-discrete;
+    width: 100vw;
+
+    &::backdrop {
+      background-color: black;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    &[open] {
+      display: flex;
+
+      &::backdrop {
+        opacity: 1;
+      }
+    }
+
+    &:not([open]) > a,
+    &:not([open]) > button {
+      display: none;
+    }
+
+    > a:not([href]) {
+      display: none;
+    }
+
+    > a,
+    > button {
+      appearance: none;
+      background-color: #333d;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: block;
+      height: 50px;
+      outline: none;
+      padding: 0;
+      position: fixed;
+      top: 20px;
+      transition: scale 0.1s ease, background-color 0.1s ease;
+      user-select: none;
+      width: 50px;
+      z-index: 1;
+
+      &:active,
+      &:focus,
+      &:hover {
+        background-color: #444d;
+        scale: 1.05;
+      }
+      &:nth-child(1) {
+        left: 20px;
+      }
+      &:nth-child(2) {
+        right: calc(20px * 2 + 50px);
+      }
+      &:nth-child(2).is-last,
+      &:nth-child(3) {
+        right: 20px;
+      }
+    }
+
+    > img {
+      flex-shrink: 0;
+      height: 100vh;
+      max-width: unset;
+      object-fit: contain;
+      scroll-snap-align: center;
+      width: 100vw;
+    }
+  }
+
+  > div {
+    border-radius: 30px;
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: clip;
+
+    > img {
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+      transition: scale 0.4s ease, filter 0.4s ease;
+
+      &:hover {
+        filter: brightness(0.7);
+        scale: 0.985;
+      }
+    }
+  }
+}
+
+@starting-style {
+  #photos > dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+::view-transition-group(closingImage),
+::view-transition-group(currentImage) {
+  animation-duration: 0.3s;
+}
+
+::view-transition-old(currentImage) {
+  opacity: 0;
+}
+
+::view-transition-old(closingImage),
+::view-transition-new(currentImage) {
+  object-fit: cover;
+}
+
+::view-transition-old(currentImage),
+::view-transition-new(currentImage) {
+  animation: none;
+  mix-blend-mode: normal;
+  height: 100%;
+}
+
+@media screen and (max-width: 600px) {
+  #wedding {
+    > div {
+      grid-template-columns: unset;
+      > div:last-child {
+        order: -1;
+      }
+    }
+  }
+
+  #forest-selfie {
+    order: 2;
+    margin-bottom: calc(-1 * var(--radius2));
+  }
+
+  #see-you-there {
+    order: 1;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  #photos {
+    order: 3;
+    > div {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
