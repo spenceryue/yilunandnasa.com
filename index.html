@@ -240,6 +240,15 @@
           },
           { passive: true }
         );
+
+        Array.from(element.children).forEach((child) => {
+          const target = document.querySelector(new URL(child.href).hash);
+
+          child.addEventListener("click", (e) => {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        });
       }
 
       function photos(selector = "#photos") {
@@ -250,9 +259,12 @@
         const buttons = Array.from(dialog.querySelectorAll("a, button"));
         let currentImage;
 
-        document.startViewTransition ??= (f) => f();
+        document.startViewTransition ??= (f) => {
+          f();
+          return { finished: Promise.resolve() };
+        };
 
-        images.forEach((img, i) =>
+        images.forEach((img, i) => {
           img.addEventListener("click", () => {
             if (!dialog.open) {
               if (currentImage) {
@@ -265,21 +277,31 @@
                 dialog.showModal();
                 document.activeElement?.blur();
                 document.documentElement.style.overflow = "hidden";
+                document.documentElement.style.scrollbarGutter = "stable";
                 imagesContainer.style.height = imagesContainer.getBoundingClientRect().height;
                 dialog.append(...images);
                 img.scrollIntoView({ behavior: "instant" });
               });
             }
-          })
-        );
+          });
+
+          img.draggable = false;
+        });
+
+        let afterClose = [];
 
         dialog.addEventListener("close", () => {
           currentImage.style.viewTransitionName = "closingImage";
-          document.startViewTransition(() => {
-            imagesContainer.append(...images);
-            imagesContainer.style.height = null;
-            document.documentElement.style.overflow = null;
-          });
+          document
+            .startViewTransition(() => {
+              imagesContainer.append(...images);
+              imagesContainer.style.height = null;
+              document.documentElement.style.scrollbarGutter = document.documentElement.style.overflow = null;
+            })
+            .finished.then(() => {
+              afterClose.forEach((f) => f());
+              afterClose.length = 0;
+            });
         });
 
         dialog.addEventListener("scroll", setCurrentImage, { passive: true });
@@ -296,27 +318,89 @@
           { passive: true }
         );
 
-        dialog.addEventListener("click", (e) => {
-          if (!(e.target instanceof HTMLImageElement)) {
+        SWIPE_TO_DISMISS: dialog.addEventListener("pointerdown", (e) => {
+          if (!(e.target instanceof HTMLImageElement) || e.defaultPrevented) {
             return;
           }
 
-          const aspectRatio = currentImage.naturalWidth / currentImage.naturalHeight;
-          const screenAspectRatio = dialog.clientWidth / dialog.clientHeight;
-          const isPortrait = aspectRatio < screenAspectRatio;
-          const [width, height] = isPortrait
-            ? [dialog.clientHeight * aspectRatio, dialog.clientHeight]
-            : [dialog.clientWidth, dialog.clientWidth / aspectRatio];
+          const original = e;
+          const initial = [e.clientX, e.clientY];
 
-          if (
-            Math.abs(e.clientX - dialog.clientWidth / 2) > width / 2 ||
-            Math.abs(e.clientY - dialog.clientHeight / 2) > height / 2
-          ) {
-            dialog.close();
+          let opacity = 1;
+
+          const done =
+            (resetStylesImmediately = true) =>
+            () => {
+              const resetStyles = () => {
+                dialog.style.removeProperty("--dialog-opacity");
+                dialog.classList.remove("hide-ui");
+                dialog.style.clipPath =
+                  dialog.style.scale =
+                  dialog.style.transformOrigin =
+                  dialog.style.translate =
+                    null;
+              };
+
+              if (resetStylesImmediately) {
+                resetStyles();
+              } else {
+                afterClose.push(resetStyles);
+              }
+
+              dialog.releasePointerCapture(original.pointerId);
+              dialog.removeEventListener("pointermove", onPointerMove);
+              dialog.removeEventListener("pointercancel", onPointerCancel);
+              dialog.removeEventListener("pointerup", onPointerUp);
+            };
+
+          const onPointerCancel = done(true);
+
+          dialog.addEventListener("pointermove", onPointerMove);
+          dialog.addEventListener("pointercancel", onPointerCancel, { once: true });
+          dialog.addEventListener("pointerup", onPointerUp, { once: true });
+
+          const clamp = (x, [low = -Infinity, high = Infinity] = []) => Math.max(low, Math.min(high, x));
+          const unmix = (a, b, x) => (x - a) / (b - a);
+          const mix = (a, b, t) => a + (b - a) * t;
+
+          function onPointerMove(e) {
+            const current = [e.clientX, e.clientY];
+            const delta = [current[0] - initial[0], current[1] - initial[1]];
+            const angle = Math.atan(delta[1] / delta[0]);
+            const isVerticalEnough = Math.abs(angle) > Math.PI / 4;
+            const isShrinking = isVerticalEnough || (original.defaultPrevented && Math.abs(delta[1]) > 50);
+
+            opacity = mix(1, 0.2, clamp(unmix(50, 200, Math.abs(delta[1]) * +isShrinking), [0, 1]));
+            dialog.style.setProperty("--dialog-opacity", opacity);
+            dialog.style.scale = opacity;
+            dialog.style.translate = `${delta[0] * +isShrinking}px ${delta[1] * +isShrinking}px`;
+
+            if (!original.defaultPrevented && Math.abs(delta[1]) > 50 && isVerticalEnough) {
+              original.preventDefault();
+              dialog.setPointerCapture(original.pointerId);
+              currentImage.scrollIntoView({ behavior: "instant", inline: "start" });
+              dialog.style.clipPath = "inset(0 10px 0 10px)";
+              dialog.style.transformOrigin = `${initial[0]}px ${initial[1]}px`;
+              dialog.classList.add("hide-ui");
+            }
+
+            if (original.defaultPrevented) {
+              e.preventDefault();
+            }
+          }
+
+          function onPointerUp(e) {
+            const current = [e.clientX, e.clientY];
+            const delta = [current[0] - initial[0], current[1] - initial[1]];
+            const shouldClose = opacity < mix(1, 0.2, 0.5);
+            done(!shouldClose)();
+            if (shouldClose) {
+              dialog.open && dialog.close();
+            }
           }
         });
 
-        buttons[0].addEventListener("click", (e) => dialog.close());
+        buttons[0].addEventListener("click", (e) => dialog.open && dialog.close());
 
         if (navigator.canShare({ title: "test" })) {
           buttons[2].addEventListener("click", async () => {
