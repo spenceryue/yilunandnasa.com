@@ -264,24 +264,28 @@
           return { finished: Promise.resolve() };
         };
 
+        let currentViewTransition;
+
         images.forEach((img, i) => {
           img.addEventListener("click", () => {
-            if (!dialog.open) {
+            if (!dialog.open && !currentViewTransition) {
               if (currentImage) {
                 currentImage.style.viewTransitionName = null;
               }
               currentImage = img;
               img.style.viewTransitionName = "currentImage";
-              document.startViewTransition(() => {
+
+              const self = (currentViewTransition = document.startViewTransition(() => {
                 setInstagramLink(currentImage);
                 dialog.showModal();
                 document.activeElement?.blur();
                 document.documentElement.style.overflow = "hidden";
-                document.documentElement.style.scrollbarGutter = "stable";
                 imagesContainer.style.height = imagesContainer.getBoundingClientRect().height;
                 dialog.append(...images);
                 img.scrollIntoView({ behavior: "instant" });
-              });
+              }));
+
+              self.finished.then(() => self === currentViewTransition && (currentViewTransition = null));
             }
           });
 
@@ -290,18 +294,25 @@
 
         let afterClose = [];
 
-        dialog.addEventListener("close", () => {
+        dialog.addEventListener("close", async () => {
           currentImage.style.viewTransitionName = "closingImage";
-          document
-            .startViewTransition(() => {
-              imagesContainer.append(...images);
-              imagesContainer.style.height = null;
-              document.documentElement.style.scrollbarGutter = document.documentElement.style.overflow = null;
-            })
-            .finished.then(() => {
-              afterClose.forEach((f) => f());
-              afterClose.length = 0;
-            });
+
+          if (currentViewTransition) {
+            currentViewTransition.skipTransition();
+            await currentViewTransition.finished;
+          }
+
+          const self = (currentViewTransition = document.startViewTransition(() => {
+            imagesContainer.append(...images);
+            imagesContainer.style.height = null;
+            document.documentElement.style.overflow = null;
+          }));
+
+          self.finished.then(() => {
+            afterClose.forEach((f) => f());
+            afterClose.length = 0;
+            currentViewTransition = null;
+          });
         });
 
         dialog.addEventListener("scroll", setCurrentImage, { passive: true });
@@ -334,7 +345,9 @@
               const resetStyles = () => {
                 dialog.style.removeProperty("--dialog-opacity");
                 dialog.classList.remove("hide-ui");
-                dialog.style.clipPath =
+                document.documentElement.style.scrollbarGutter =
+                  dialog.style.clipPath =
+                  dialog.style.pointerEvents =
                   dialog.style.scale =
                   dialog.style.transformOrigin =
                   dialog.style.translate =
@@ -347,7 +360,6 @@
                 afterClose.push(resetStyles);
               }
 
-              dialog.releasePointerCapture(original.pointerId);
               dialog.removeEventListener("pointermove", onPointerMove);
               dialog.removeEventListener("pointercancel", onPointerCancel);
               dialog.removeEventListener("pointerup", onPointerUp);
@@ -382,6 +394,7 @@
               dialog.style.clipPath = "inset(0 10px 0 10px)";
               dialog.style.transformOrigin = `${initial[0]}px ${initial[1]}px`;
               dialog.classList.add("hide-ui");
+              document.documentElement.style.scrollbarGutter = "stable";
             }
 
             if (original.defaultPrevented) {
@@ -395,12 +408,16 @@
             const shouldClose = opacity < mix(1, 0.2, 0.5);
             done(!shouldClose)();
             if (shouldClose) {
-              dialog.open && dialog.close();
+              dialog.style.pointerEvents = "none";
+              dialog.close();
+            }
+            if (original.defaultPrevented) {
+              dialog.releasePointerCapture(original.pointerId);
             }
           }
         });
 
-        buttons[0].addEventListener("click", (e) => dialog.open && dialog.close());
+        buttons[0].addEventListener("click", (e) => dialog.close());
 
         if (navigator.canShare({ title: "test" })) {
           buttons[2].addEventListener("click", async () => {
