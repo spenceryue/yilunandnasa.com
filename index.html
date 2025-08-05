@@ -347,6 +347,7 @@
                 dialog.classList.remove("hide-ui");
                 document.documentElement.style.scrollbarGutter =
                   dialog.style.clipPath =
+                  dialog.style.overflow =
                   dialog.style.pointerEvents =
                   dialog.style.scale =
                   dialog.style.transformOrigin =
@@ -392,6 +393,7 @@
               dialog.setPointerCapture(original.pointerId);
               currentImage.scrollIntoView({ behavior: "instant", inline: "start" });
               dialog.style.clipPath = "inset(0 10px 0 10px)";
+              dialog.style.overflow = "hidden";
               dialog.style.transformOrigin = `${initial[0]}px ${initial[1]}px`;
               dialog.classList.add("hide-ui");
               document.documentElement.style.scrollbarGutter = "stable";
